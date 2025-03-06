@@ -1,10 +1,15 @@
 const routes = require("./routes");
 const bodyParser = require('body-parser');
+const cors = require("cors");
 const express = require('express');
 const connectDB = require('./config/database');
 
+
 const app = express();
 app.use(express.json());
+app.use(cors());
+
+// Port
 const PORT = process.env.PORT || 3000;
 
 // Kết nối đến MongoDB Atlas
