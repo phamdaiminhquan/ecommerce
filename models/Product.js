@@ -9,3 +9,8 @@ const ProductSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Product", ProductSchema);
+
+
+//owner ai là người tạo sản phẩm này
+//shop của shop nào
+//branding nào
