@@ -63,10 +63,10 @@ const topSellingProducts = async (req, res) => {
 
         // 1️⃣ **Tìm danh sách sản phẩm top selling**
         const products = await Product.find(filter)
-            .sort({ quantity_sold: -1, rating: -1 }) // Sắp xếp theo bán chạy
+            .sort({ quantity_sold: -1, rating: -1 })
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice") // Lấy giá mặc định
+            .populate("variantDefault", "price salePrice")
             .lean();
 
         if (products.length === 0) {
@@ -90,7 +90,7 @@ const topSellingProducts = async (req, res) => {
         }));
 
         // 3️⃣ **Trả về danh sách sản phẩm**
-        res.status(200).json({ products: productList });
+        res.status(200).json(productList);
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
