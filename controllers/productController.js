@@ -97,4 +97,57 @@ const topSellingProducts = async (req, res) => {
     }
 };
 
-module.exports = { searchProducts, topSellingProducts };
+const filterProductsByTag = async (req, res) => {
+    try {
+        const { tag } = req.params;
+        const { page = 1, limit = 10 } = req.query;
+        const limitParsed = parseInt(limit);
+        const skip = (parseInt(page) - 1) * limitParsed;
+
+        // Kiểm tra nếu không có tag
+        if (!tag) {
+            return res.status(400).json({ message: "Tag is required" });
+        }
+
+        // 1️⃣ **Lọc sản phẩm theo tag**
+        let filter = {
+            isActive: true,
+            tags: { $in: [tag] } // Kiểm tra nếu tag nằm trong danh sách tags của sản phẩm
+        };
+
+        // 2️⃣ **Lấy danh sách sản phẩm đã lọc**
+        const products = await Product.find(filter)
+            .sort({ quantity_sold: -1, rating: -1 }) // Ưu tiên bán chạy, sau đó rating cao hơn
+            .skip(skip)
+            .limit(limitParsed)
+            .populate("variantDefault", "price salePrice") // Lấy giá mặc định
+            .lean();
+
+        if (products.length === 0) {
+            return res.status(200).json({ products: [] });
+        }
+
+        // 3️⃣ **Chuẩn bị dữ liệu trả về**
+        const productList = products.map(product => ({
+            _id: product._id,
+            name: product.name,
+            thumbnail: product.images.length > 0 ? product.images[0] : null,
+            brand_name: product.brand_name,
+            rating: product.rating,
+            quantity_sold: product.quantity_sold,
+            original_price: product.variantDefault ? product.variantDefault.price : null,
+            selling_price: product.variantDefault
+                ? product.variantDefault.salePrice || product.variantDefault.price
+                : null,
+            isFavorite: false
+        }));
+
+        // 4️⃣ **Trả về kết quả**
+        res.status(200).json({ products: productList });
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+module.exports = { searchProducts, topSellingProducts , filterProductsByTag };
