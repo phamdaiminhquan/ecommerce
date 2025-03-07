@@ -26,21 +26,18 @@ const searchProducts = async (req, res) => {
             .sort({ quantity_sold: -1, rating: -1 })
             .skip((page - 1) * limitParsed)
             .limit(limitParsed)
-            .populate("variantDefault") // ✅ Populate đến variantDefault
-            .lean(); // ✅ Tăng hiệu suất nếu chỉ đọc dữ liệu
+            .populate("variantDefault", "price salePrice ")
+            .lean()
+            .select("-category_id -view -tags");
 
         if (products.length === 0) {
-            console.log("No products found");
             return res.status(200).json({ products: [] });
         }
-
-        console.log("Final Product Data:", products);
 
         // 2️⃣ **Cập nhật tìm kiếm trong SearchKeyword**
         let search = await SearchKeyword.findOne({ keyword: keyword.toLowerCase() });
         if (!search) {
             search = new SearchKeyword({ keyword: keyword.toLowerCase(), search_count: 1 });
-            console.log("New keyword added:", search);
         } else {
             search.search_count++;
         }
