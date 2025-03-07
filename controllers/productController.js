@@ -28,7 +28,7 @@ const searchProducts = async (req, res) => {
             .limit(limitParsed)
             .populate("variantDefault", "price salePrice ")
             .lean()
-            .select("-category_id -view -tags");
+            .select("-view -tags");
 
         if (products.length === 0) {
             return res.status(200).json({ products: [] });
@@ -51,4 +51,50 @@ const searchProducts = async (req, res) => {
     }
 };
 
-module.exports = { searchProducts };
+const topSellingProducts = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const limitParsed = parseInt(limit);
+        const pageParsed = parseInt(page);
+        const skip = (pageParsed - 1) * limitParsed;
+
+        // Lọc sản phẩm đang hoạt động
+        const filter = { isActive: true };
+
+        // 1️⃣ **Tìm danh sách sản phẩm top selling**
+        const products = await Product.find(filter)
+            .sort({ quantity_sold: -1, rating: -1 }) // Sắp xếp theo bán chạy
+            .skip(skip)
+            .limit(limitParsed)
+            .populate("variantDefault", "price salePrice") // Lấy giá mặc định
+            .lean();
+
+        if (products.length === 0) {
+            return res.status(200).json({ products: [] });
+        }
+
+        // 2️⃣ **Xử lý dữ liệu trước khi trả về**
+        const productList = products.map(product => ({
+            _id: product._id,
+            name: product.name,
+            thumbnail: product.images.length > 0 ? product.images[0] : null,
+            brand_name: product.brand_name,
+            rating: product.rating,
+            quantity_sold: product.quantity_sold,
+            original_price: product.variantDefault ? product.variantDefault.price : null,
+            selling_price: product.variantDefault
+                ? product.variantDefault.salePrice || product.variantDefault.price
+                : null,
+            isActive: product.isActive,
+            isFavorite: false
+        }));
+
+        // 3️⃣ **Trả về danh sách sản phẩm**
+        res.status(200).json({ products: productList });
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+module.exports = { searchProducts, topSellingProducts };
