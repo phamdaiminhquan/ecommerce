@@ -23,5 +23,5 @@ app.use(bodyParser.json());
 
 // Khởi động server
 app.listen(PORT, () => {
-  console.log(`Server đang chạy trên cổng http://localhost/${PORT}`);
+  console.log(`Server đang chạy trên cổng http://localhost:${PORT}`);
 });

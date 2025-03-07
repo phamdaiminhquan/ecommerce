@@ -1,4 +1,4 @@
-const Ad = require("../models/Ad");
+const Ad = require("../models/Ads");
 
 // API lấy danh sách quảng cáo đang hoạt động
 const getActiveAds = async (req, res) => {
