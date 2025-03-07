@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const SearchKeywordSchema = new mongoose.Schema({
-  keyword: { type: String, required: true },
+  keyword: { type: String, required: true, unique: true },
   search_count: { type: Number, default: 1 },
 }, { timestamps: true });
 
