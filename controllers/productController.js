@@ -102,7 +102,8 @@ const filterProductsByTag = async (req, res) => {
         const { tag } = req.params;
         const { page = 1, limit = 10 } = req.query;
         const limitParsed = parseInt(limit);
-        const skip = (parseInt(page) - 1) * limitParsed;
+        const pageParsed = parseInt(page)
+        const skip = (pageParsed - 1) * limitParsed;
 
         // Kiểm tra nếu không có tag
         if (!tag) {
@@ -124,7 +125,7 @@ const filterProductsByTag = async (req, res) => {
             .lean();
 
         if (products.length === 0) {
-            return res.status(200).json({ products: [] });
+            return res.status(200).json({});
         }
 
         // 3️⃣ **Chuẩn bị dữ liệu trả về**
@@ -143,7 +144,7 @@ const filterProductsByTag = async (req, res) => {
         }));
 
         // 4️⃣ **Trả về kết quả**
-        res.status(200).json({ products: productList });
+        res.status(200).json(productList);
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
