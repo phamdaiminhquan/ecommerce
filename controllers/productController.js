@@ -70,7 +70,7 @@ const searchProducts = async (req, res) => {
             isFavorite: false
         }));
 
-        res.status(200).json({ products });
+        res.status(200).json(productList);
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
