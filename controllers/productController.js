@@ -248,4 +248,52 @@ const getProductsByCategory = async (req, res) => {
     }
 };
 
-module.exports = { searchProducts, topSellingProducts, filterProductsByTag, getProductsByCategory };
+const popularProducts = async (req, res) => {
+    try {
+        // pagination
+        const { page, limit } = req.query;
+
+        let limitParsed = parseInt(limit);
+        let pageParsed = parseInt(page)
+
+        if (isNaN(limitParsed) || limitParsed <= 0) {
+            limitParsed = 10;
+        }
+        if (isNaN(pageParsed) || pageParsed <= 0) {
+            pageParsed = 1;
+        }
+        const skip = (pageParsed - 1) * limitParsed;
+
+        const products = await Product.find()
+            .sort({ quantity_sold: -1, rating: -1 })
+            .skip(skip)
+            .limit(limitParsed)
+            .populate("variantDefault", "price salePrice")
+            .lean();
+
+        if (products.length === 0) {
+            return res.status(200).json({});
+        }
+
+        const productList = products.map(product => ({
+            _id: product._id,
+            name: product.name,
+            thumbnail: product.images.length > 0 ? product.images[0] : null,
+            brand_name: product.brand_name,
+            rating: product.rating,
+            quantity_sold: product.quantity_sold,
+            original_price: product.variantDefault.price,
+            selling_price: product.variantDefault
+                ? product.variantDefault.salePrice || product.variantDefault.price
+                : null,
+            isFavorite: false
+        }));
+
+        res.status(200).json(productList);
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+module.exports = { searchProducts, topSellingProducts, filterProductsByTag, getProductsByCategory, popularProducts };
