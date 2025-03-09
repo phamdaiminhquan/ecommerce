@@ -55,6 +55,21 @@ const searchProducts = async (req, res) => {
         }
         await search.save();
 
+        const productList = products.map(product => ({
+            _id: product._id,
+            name: product.name,
+            thumbnail: product.images.length > 0 ? product.images[0] : null,
+            brand_name: product.brand_name,
+            rating: product.rating,
+            quantity_sold: product.quantity_sold,
+            original_price: product.variantDefault.price,
+            selling_price: product.variantDefault
+                ? product.variantDefault.salePrice || product.variantDefault.price
+                : null,
+            isActive: product.isActive,
+            isFavorite: false
+        }));
+
         res.status(200).json({ products });
     } catch (err) {
         console.error("Error occurred:", err);
