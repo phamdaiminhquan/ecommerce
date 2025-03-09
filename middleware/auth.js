@@ -15,4 +15,24 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;
+const checkAuth = async (req, res, next) => {
+    try {
+        const token = req.header("Authorization")?.split(" ")[1];
+
+        if (!token) {
+            req.user = null; // Người dùng chưa đăng nhập
+            return next(); // Tiếp tục xử lý API bình thường
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next(); // Cho phép tiếp tục API
+    } catch (err) {
+        req.user = null;
+        next();
+    }
+};
+
+
+
+module.exports = {authMiddleware, checkAuth};

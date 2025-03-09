@@ -8,8 +8,9 @@ const productRoutes = require("./products");
 const searchRoutes = require("./searchRoutes");
 const authRoutes = require("./authRoutes");
 const cartRoutes = require("./cartRoutes");
-const authMiddleware = require("../middleware/auth");
+const wishlistRoutes = require("./wishlistRoutes")
 
+const {authMiddleware} = require("../middleware/auth");
 
 // Định nghĩa prefix cho từng route
 router.use("/categories", categoryRoutes);
@@ -18,6 +19,7 @@ router.use("/products", productRoutes);
 router.use("/search", searchRoutes);
 router.use("/auth", authRoutes);
 router.use("/cart", cartRoutes);
+router.use("/wishlist", wishlistRoutes);
 
 // api check token
 router.get("/profile", authMiddleware, (req, res) => {

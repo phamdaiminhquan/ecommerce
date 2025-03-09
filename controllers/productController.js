@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const Variant = require("../models/Variant");
 const SearchKeyword = require("../models/SearchKeyword");
+const Wishlist = require("../models/Wishlist");
 
 const searchProducts = async (req, res) => {
     try {
@@ -296,4 +297,65 @@ const popularProducts = async (req, res) => {
     }
 };
 
-module.exports = { searchProducts, topSellingProducts, filterProductsByTag, getProductsByCategory, popularProducts };
+const getProductsByCategoryOrderedByTime = async (req, res) => {
+    try {
+        const { categoryID } = req.query;
+
+        // Pagination
+        const { page, limit } = req.query;
+        let limitParsed = parseInt(limit) || 10;
+        let pageParsed = parseInt(page) || 1;
+        const skip = (pageParsed - 1) * limitParsed;
+
+        if (!categoryID) {
+            return res.status(400).json({ message: "Category ID is required" });
+        }
+
+        // Tìm sản phẩm theo category, sắp xếp theo `createdAt` (mới nhất trước)
+        const products = await Product.find({ category_id: categoryID, isActive: true })
+            .sort({ createdAt: -1 }) // Mới nhất trước
+            .skip(skip)
+            .limit(limitParsed)
+            .populate("variantDefault", "price salePrice")
+            .lean();
+
+        if (products.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        let wishlists = [];
+
+        // Nếu user đã đăng nhập, lấy danh sách wishlist của họ
+        if (req.user) {
+            wishlists = await Wishlist.find({ user_id: req.user.id }).select("product_id isActive").lean();
+        }
+
+        // Format API response
+        const productList = products.map(product => {
+            const wishlistItem = wishlists.find(w => w.product_id.toString() === product._id.toString());
+
+            return {
+                _id: product._id,
+                name: product.name,
+                thumbnail: product.images.length > 0 ? product.images[0] : null,
+                brand_name: product.brand_name,
+                rating: product.rating,
+                quantity_sold: product.quantity_sold,
+                original_price: product.variantDefault?.price || null,
+                selling_price: product.variantDefault
+                    ? product.variantDefault.salePrice || product.variantDefault.price
+                    : null,
+                isActive: product.isActive,
+                createdAt: product.createdAt,
+                wishlist: wishlistItem ? wishlistItem.isActive : null
+            };
+        });
+
+        res.status(200).json(productList);
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+module.exports = { searchProducts, topSellingProducts, filterProductsByTag, getProductsByCategory, popularProducts, getProductsByCategoryOrderedByTime };
