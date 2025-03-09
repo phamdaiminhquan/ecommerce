@@ -43,7 +43,7 @@ const searchProducts = async (req, res) => {
             .select("-view -tags");
 
         if (products.length === 0) {
-            return res.status(200).json({ products: [] });
+            return res.status(200).json([]);
         }
 
         // add keyword in database
