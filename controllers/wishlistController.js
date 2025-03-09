@@ -1,4 +1,5 @@
-const wishlist = require("../models/Wishlist")
+const Wishlist = require("../models/Wishlist");
+const Product = require("../models/Product");
 
 const favorite = async (req,res) => {
     try{
@@ -10,10 +11,10 @@ const favorite = async (req,res) => {
             return res.status(400).json({ message: "Product ID and Status is required" });
         }
 
-        let favorite = await wishlist.findOne({user_id: user_id, product_id: product_id});
+        let favorite = await Wishlist.findOne({user_id: user_id, product_id: product_id});
 
         if (!favorite){
-            favorite = new wishlist({ user_id, product_id, isActive: status });
+            favorite = new Wishlist({ user_id, product_id, isActive: status });
         } else {
             favorite.isActive = status;
         }
@@ -26,4 +27,43 @@ const favorite = async (req,res) => {
     }
 }
 
-module.exports = {favorite};
+const getWishlist = async (req, res) => {
+    try {
+        const user_id = req.user.id;
+
+        // Pagination
+        const { page, limit } = req.query;
+        let limitParsed = parseInt(limit) || 10;
+        let pageParsed = parseInt(page) || 1;
+        const skip = (pageParsed - 1) * limitParsed;
+
+        // Lấy danh sách wishlist của user và populate thông tin sản phẩm
+        const wishlistItems = await Wishlist.find({ user_id, isActive: true })
+            .populate({
+                path: "product_id",
+                select: "_id name images" // Chỉ lấy các field cần thiết của sản phẩm
+            })
+            .skip(skip)
+            .limit(limitParsed)
+            .lean();
+
+        if (wishlistItems.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        // Format API response
+        const wishlistData = wishlistItems.map(item => ({
+            product_id: item.product_id._id,
+            name: item.product_id.name,
+            thumbnail: item.product_id?.images?.[0] || null,
+            status: item.isActive
+        }));
+
+        res.status(200).json(wishlistData);
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+module.exports = {favorite, getWishlist};
