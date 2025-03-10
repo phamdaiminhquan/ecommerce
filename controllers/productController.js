@@ -364,34 +364,37 @@ const getProductDetails = async (req, res) => {
     try {
         const { productID } = req.params;
 
-        // 📌 1️⃣ Lấy thông tin sản phẩm chính
         const product = await Product.findById(productID)
+            .select("_id name category_id brand_name description images variantDefault")
             .lean();
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        // 📌 2️⃣ Lấy danh sách tất cả variants của sản phẩm này
         const variants = await Variant.find({ product_id: productID })
+            .select("_id sku name price salePrice stock images")
             .lean();
 
-        // 📌 3️⃣ Lấy danh sách tất cả attributes của các variants
         const variantIDs = variants.map(variant => variant._id);
         const attributes = await Attribute.find({ variant_id: { $in: variantIDs } })
+            .select("variant_id type value")
             .lean();
 
-        // 📌 4️⃣ Ghép attributes vào từng variant
         const variantData = variants.map(variant => ({
-            ...variant,
-            attributes: attributes.filter(attr => attr.variant_id.toString() === variant._id.toString())
+            _id: variant._id,
+            sku: variant.sku,
+            name: variant.name,
+            price: variant.price,
+            salePrice: variant.salePrice,
+            stock: variant.stock,
+            images: variant.images,
+            attributes: attributes
+                .filter(attr => attr.variant_id.toString() === variant._id.toString())
+                .map(({ type, value }) => ({ type, value }))
         }));
 
-        // 📌 5️⃣ Trả về dữ liệu
-        res.status(200).json({
-            product,
-            variants: variantData
-        });
+        res.status(200).json({ product, variants: variantData });
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
