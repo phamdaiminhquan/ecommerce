@@ -394,7 +394,26 @@ const getProductDetails = async (req, res) => {
                 .map(({ type, value }) => ({ type, value }))
         }));
 
-        res.status(200).json({ product, variants: variantData });
+        // Extract unique attribute types and values
+        const extractAttributes = (variants) => {
+            const attributeMap = {};
+            variants.forEach((variant) => {
+                variant.attributes.forEach(({ type, value }) => {
+                    if (!attributeMap[type]) {
+                        attributeMap[type] = new Set();
+                    }
+                    attributeMap[type].add(value);
+                });
+            });
+            return Object.entries(attributeMap).map(([type, values]) => ({
+                type,
+                values: Array.from(values),
+            }));
+        };
+
+        const attributesList = extractAttributes(variantData);
+
+        res.status(200).json({ product, variants: variantData, attributes: attributesList });
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
