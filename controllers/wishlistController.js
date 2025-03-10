@@ -66,4 +66,4 @@ const getWishlist = async (req, res) => {
     }
 };
 
-module.exports = {favorite, getWishlist};
+module.exports = { favorite, getWishlist };

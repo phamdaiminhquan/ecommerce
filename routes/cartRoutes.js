@@ -1,9 +1,13 @@
 const express = require("express");
-const {authMiddleware} = require("../middleware/auth");
+const { authMiddleware, checkAuth } = require("../middleware/auth");
 const router = express.Router();
 const cartController = require("../controllers/cartController")
 
-// Thêm sản phẩm vào giỏ hàng**
+// lấy số lượng sản phẩm trong giỏ hàng
+router.post("/quantity" , authMiddleware, cartController.quantityItemsCart);
+
+// Thêm sản phẩm vào giỏ hàng
 router.post("/add", authMiddleware, cartController.addToCart);
+
 
 module.exports = router;
