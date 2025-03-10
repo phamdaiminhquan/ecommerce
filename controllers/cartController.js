@@ -38,7 +38,7 @@ const addToCart = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
-}
+};
 
 const quantityItemsCart = async (req, res) => {
     try {
