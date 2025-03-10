@@ -2,6 +2,8 @@ const Product = require("../models/Product");
 const Variant = require("../models/Variant");
 const SearchKeyword = require("../models/SearchKeyword");
 const Wishlist = require("../models/Wishlist");
+const Attribute = require("../models/Attribute");
+
 
 const searchProducts = async (req, res) => {
     try {
@@ -126,7 +128,7 @@ const topSellingProducts = async (req, res) => {
         res.status(200).json(productList);
     } catch (err) {
         console.error("Error occurred:", err);
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server error in topSellingProducts", error: err.message });
     }
 };
 
@@ -358,4 +360,50 @@ const getProductsByCategoryOrderedByTime = async (req, res) => {
     }
 };
 
-module.exports = { searchProducts, topSellingProducts, filterProductsByTag, getProductsByCategory, popularProducts, getProductsByCategoryOrderedByTime };
+const getProductDetails = async (req, res) => {
+    try {
+        const { productID } = req.params;
+
+        // 📌 1️⃣ Lấy thông tin sản phẩm chính
+        const product = await Product.findById(productID)
+            .lean();
+
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        // 📌 2️⃣ Lấy danh sách tất cả variants của sản phẩm này
+        const variants = await Variant.find({ product_id: productID })
+            .lean();
+
+        // 📌 3️⃣ Lấy danh sách tất cả attributes của các variants
+        const variantIDs = variants.map(variant => variant._id);
+        const attributes = await Attribute.find({ variant_id: { $in: variantIDs } })
+            .lean();
+
+        // 📌 4️⃣ Ghép attributes vào từng variant
+        const variantData = variants.map(variant => ({
+            ...variant,
+            attributes: attributes.filter(attr => attr.variant_id.toString() === variant._id.toString())
+        }));
+
+        // 📌 5️⃣ Trả về dữ liệu
+        res.status(200).json({
+            product,
+            variants: variantData
+        });
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+module.exports = { 
+    searchProducts, 
+    topSellingProducts, 
+    filterProductsByTag, 
+    getProductsByCategory, 
+    popularProducts, 
+    getProductsByCategoryOrderedByTime,
+    getProductDetails
+};
