@@ -5,9 +5,25 @@ const User = require("../models/User");
 const router = express.Router();
 require("dotenv").config();
 
+const isValidPassword = (password) => {
+    const regex = /^[A-Za-z\d]{6,50}$/; // Chỉ cho phép chữ hoa, chữ thường, số, từ 8 đến 50 ký tự
+    return regex.test(password);
+};
+
 router.post("/register", async (req, res) => {
     try {
         const { name, email, password } = req.body;
+
+        // Kiểm tra password có hợp lệ không
+        if (!password || password.length < 8 || password.length > 50) {
+            return res.status(400).json({ message: "Password must be between 8 and 50 characters" });
+        }
+
+        if (!isValidPassword(password)) {
+            return res.status(400).json({
+                message: "Password can only contain letters and numbers, no special characters allowed"
+            });
+        }
 
         // Kiểm tra email đã tồn tại chưa
         let user = await User.findOne({ email });
@@ -27,22 +43,29 @@ router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // 📌 1️⃣ Kiểm tra email có tồn tại không
+        // Kiểm tra password có hợp lệ không
+        if (!password || password.length < 6 || password.length > 50) {
+            return res.status(400).json({ message: "Password must be between 8 and 50 characters" });
+        }
+
+        if (!isValidPassword(password)) {
+            return res.status(400).json({
+                message: "Password can only contain letters and numbers, no special characters allowed"
+            });
+        }
+
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Your email or password is wrong" });
 
-        // 📌 2️⃣ So sánh mật khẩu
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Your email or password is wrong" });
 
-        // 📌 3️⃣ Tạo JWT token
         const token = jwt.sign(
             { id: user._id, role: user.role }, // Token chứa ID + Role
             process.env.JWT_SECRET, 
             { expiresIn: "1d" }
         );
 
-        // 📌 4️⃣ Trả về kết quả đúng yêu cầu
         res.status(200).json({
             id: user._id,
             name: user.name,
