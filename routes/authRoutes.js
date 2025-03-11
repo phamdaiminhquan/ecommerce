@@ -6,7 +6,7 @@ const router = express.Router();
 require("dotenv").config();
 
 const isValidPassword = (password) => {
-    const regex = /^[A-Za-z\d]{6,50}$/; // Chỉ cho phép chữ hoa, chữ thường, số, từ 8 đến 50 ký tự
+    const regex = /^[A-Za-z\d]{6,50}$/; // Chỉ cho phép chữ hoa, chữ thường, số, từ 6 đến 50 ký tự
     return regex.test(password);
 };
 
@@ -15,7 +15,7 @@ router.post("/register", async (req, res) => {
         const { name, email, password } = req.body;
 
         // Kiểm tra password có hợp lệ không
-        if (!password || password.length < 8 || password.length > 50) {
+        if (!password || password.length < 6 || password.length > 50) {
             return res.status(400).json({ message: "Password must be between 8 and 50 characters" });
         }
 
