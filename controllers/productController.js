@@ -379,6 +379,7 @@ const getProductDetails = async (req, res) => {
         }
         
         const product = await Product.findById(productID)
+            .populate("shop_id")
             .select("_id name category_id brand_name description images variantDefault")
             .lean();
 
