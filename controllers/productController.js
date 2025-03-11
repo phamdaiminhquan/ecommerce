@@ -41,7 +41,7 @@ const searchProducts = async (req, res) => {
             .sort({ quantity_sold: -1, rating: -1 })
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice ")
+            .populate("variantDefault", "_id price salePrice ")
             .lean()
             .select("-view -tags");
 
@@ -60,6 +60,7 @@ const searchProducts = async (req, res) => {
 
         const productList = products.map(product => ({
             _id: product._id,
+            variant_id: product.variantDefault._id,
             name: product.name,
             thumbnail: product.images.length > 0 ? product.images[0] : null,
             brand_name: product.brand_name,
@@ -103,7 +104,7 @@ const topSellingProducts = async (req, res) => {
             .sort({ quantity_sold: -1, rating: -1 })
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice")
+            .populate("variantDefault", "_id price salePrice")
             .lean();
 
         if (products.length === 0) {
@@ -112,6 +113,7 @@ const topSellingProducts = async (req, res) => {
 
         const productList = products.map(product => ({
             _id: product._id,
+            variant_id: product.variantDefault._id,
             name: product.name,
             thumbnail: product.images.length > 0 ? product.images[0] : null,
             brand_name: product.brand_name,
@@ -164,7 +166,7 @@ const filterProductsByTag = async (req, res) => {
             .sort({ quantity_sold: -1, rating: -1 })
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice")
+            .populate("variantDefault", "_id price salePrice")
             .lean();
 
         if (products.length === 0) {
@@ -173,6 +175,7 @@ const filterProductsByTag = async (req, res) => {
 
         const productList = products.map(product => ({
             _id: product._id,
+            variant_id: product.variantDefault._id,
             name: product.name,
             thumbnail: product.images.length > 0 ? product.images[0] : null,
             brand_name: product.brand_name,
@@ -220,7 +223,7 @@ const getProductsByCategory = async (req, res) => {
             .sort({ quantity_sold: -1, rating: -1 })
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice")
+            .populate("variantDefault", "_id price salePrice")
             .lean();
 
         if (products.length === 0) {
@@ -231,6 +234,7 @@ const getProductsByCategory = async (req, res) => {
         //formatt api
         const productList = products.map(product => ({
             _id: product._id,
+            variant_id: product.variantDefault._id,
             name: product.name,
             thumbnail: product.images.length > 0 ? product.images[0] : null,
             brand_name: product.brand_name,
@@ -271,7 +275,7 @@ const popularProducts = async (req, res) => {
             .sort({ quantity_sold: -1, rating: -1 })
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice")
+            .populate("variantDefault", "_id price salePrice")
             .lean();
 
         if (products.length === 0) {
@@ -280,6 +284,7 @@ const popularProducts = async (req, res) => {
 
         const productList = products.map(product => ({
             _id: product._id,
+            variant_id: product.variantDefault._id,
             name: product.name,
             thumbnail: product.images.length > 0 ? product.images[0] : null,
             brand_name: product.brand_name,
@@ -318,7 +323,7 @@ const getProductsByCategoryOrderedByTime = async (req, res) => {
             .sort({ createdAt: -1 }) // Mới nhất trước
             .skip(skip)
             .limit(limitParsed)
-            .populate("variantDefault", "price salePrice")
+            .populate("variantDefault", "_id price salePrice")
             .lean();
 
         if (products.length === 0) {
@@ -338,6 +343,7 @@ const getProductsByCategoryOrderedByTime = async (req, res) => {
 
             return {
                 _id: product._id,
+                variant_id: product.variantDefault._id,
                 name: product.name,
                 thumbnail: product.images.length > 0 ? product.images[0] : null,
                 brand_name: product.brand_name,
@@ -395,25 +401,25 @@ const getProductDetails = async (req, res) => {
         }));
 
         // Extract unique attribute types and values
-        const extractAttributes = (variants) => {
-            const attributeMap = {};
-            variants.forEach((variant) => {
-                variant.attributes.forEach(({ type, value }) => {
-                    if (!attributeMap[type]) {
-                        attributeMap[type] = new Set();
-                    }
-                    attributeMap[type].add(value);
-                });
-            });
-            return Object.entries(attributeMap).map(([type, values]) => ({
-                type,
-                values: Array.from(values),
-            }));
-        };
+        // const extractAttributes = (variants) => {
+        //     const attributeMap = {};
+        //     variants.forEach((variant) => {
+        //         variant.attributes.forEach(({ type, value }) => {
+        //             if (!attributeMap[type]) {
+        //                 attributeMap[type] = new Set();
+        //             }
+        //             attributeMap[type].add(value);
+        //         });
+        //     });
+        //     return Object.entries(attributeMap).map(([type, values]) => ({
+        //         type,
+        //         values: Array.from(values),
+        //     }));
+        // };
 
-        const attributesList = extractAttributes(variantData);
+        // const attributesList = extractAttributes(variantData);
 
-        res.status(200).json({ product, variants: variantData, attributes: attributesList });
+        res.status(200).json({ product, variants: variantData });
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
