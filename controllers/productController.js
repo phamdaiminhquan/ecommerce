@@ -25,7 +25,7 @@ const searchProducts = async (req, res) => {
 
         if (!keyword) {
             console.log("No keyword provided");
-            return res.status(200).json({ products: [] });
+            return res.status(200).json([]);
         }
 
         let filter = {
@@ -45,10 +45,6 @@ const searchProducts = async (req, res) => {
             .lean()
             .select("-view -tags");
 
-        if (products.length === 0) {
-            return res.status(200).json([]);
-        }
-
         // add keyword in database
         let search = await SearchKeyword.findOne({ keyword: keyword.toLowerCase() });
         if (!search) {
@@ -57,6 +53,11 @@ const searchProducts = async (req, res) => {
             search.search_count++;
         }
         await search.save();
+        
+        // chech products
+        if (products.length === 0) {
+            return res.status(200).json([]);
+        }
 
         const productList = products.map(product => ({
             _id: product._id,

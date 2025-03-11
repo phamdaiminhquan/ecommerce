@@ -9,6 +9,7 @@ const searchRoutes = require("./searchRoutes");
 const authRoutes = require("./authRoutes");
 const cartRoutes = require("./cartRoutes");
 const wishlistRoutes = require("./wishlistRoutes")
+const shopRoutes = require("./shopRoutes");
 
 const {authMiddleware} = require("../middleware/auth");
 
@@ -20,6 +21,7 @@ router.use("/search", searchRoutes);
 router.use("/auth", authRoutes);
 router.use("/cart", cartRoutes);
 router.use("/wishlist", wishlistRoutes);
+router.use("/shops", shopRoutes);
 
 // api check token
 router.get("/profile", authMiddleware, (req, res) => {

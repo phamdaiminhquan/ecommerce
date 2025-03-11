@@ -9,5 +9,4 @@ router.get("/quantity" , authMiddleware, cartController.quantityItemsCart);
 // Thêm sản phẩm vào giỏ hàng
 router.post("/add", authMiddleware, cartController.addToCart);
 
-
 module.exports = router;

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const ProductSchema = new mongoose.Schema({
   name: { type: String, required: true },
   category_id: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+  shop_id: { type: mongoose.Schema.Types.ObjectId, ref: "Shop", required: true },
   description: { type: String },
   brand_name: { type: String },
   images: { type: [String] }, // Mảng chứa URL ảnh sản phẩm
