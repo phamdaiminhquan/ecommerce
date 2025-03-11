@@ -370,12 +370,24 @@ const getProductDetails = async (req, res) => {
     try {
         const { productID } = req.params;
 
+        // Nếu user đã đăng nhập, lấy danh sách wishlist của họ
+        let favorite = false;
+        if (req.user) {
+            const user_id = req.user.id;
+            favorite = await Wishlist.findOne({user_id: user_id, product_id: productID}).select("isActive").lean();
+        }
+        
         const product = await Product.findById(productID)
             .select("_id name category_id brand_name description images variantDefault")
             .lean();
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
+        }
+
+        const productData = {
+            ...product,
+            wishlist: favorite ? favorite.isActive : null
         }
 
         const variants = await Variant.find({ product_id: productID })
@@ -419,7 +431,7 @@ const getProductDetails = async (req, res) => {
 
         // const attributesList = extractAttributes(variantData);
 
-        res.status(200).json({ product, variants: variantData });
+        res.status(200).json({ productData, variants: variantData });
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });

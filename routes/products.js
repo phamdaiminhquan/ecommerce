@@ -27,7 +27,7 @@ router.get("/top-selling", topSellingProducts);
 router.get("/popular", popularProducts);
 
 // Lấy toàn bộ thông tin sản phẩm theo productID
-router.get("/detail/:productID", getProductDetails);
+router.get("/detail/:productID", checkAuth, getProductDetails);
 
 // get product by tags
 router.get("/:tag", filterProductsByTag);
