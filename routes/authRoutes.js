@@ -10,6 +10,7 @@ const isValidPassword = (password) => {
     return regex.test(password);
 };
 
+// đăng ký
 router.post("/register", async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -39,6 +40,7 @@ router.post("/register", async (req, res) => {
     }
 });
 
+// đăng nhập
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
