@@ -21,7 +21,7 @@ router.get("/category", getProductsByCategory);
 router.get("/category/latest", checkAuth, getProductsByCategoryOrderedByTime);
 
 // get product by quantity sold
-router.get("/top-selling", topSellingProducts);a
+router.get("/top-selling", topSellingProducts);
 
 // get product by popular in 2023
 router.get("/popular", popularProducts);
