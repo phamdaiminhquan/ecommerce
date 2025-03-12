@@ -158,6 +158,62 @@ const removeItemFromCart = async (req, res) => {
     }
 };
 
+const updateCartItem = async (req, res) => {
+    try {
+        // Input
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized: User ID is missing" });
+        }
+        const user_id = req.user.id;
+
+        // Lấy item_id và quantity từ request
+        const { item_id, quantity } = req.body;
+        if (!item_id) {
+            return res.status(400).json({ message: "Bad Request: Must have item_id" });
+        }
+
+        if (typeof quantity !== "number" || quantity < 0) {
+            return res.status(400).json({ message: "Bad Request: Quantity must be a non-negative number" });
+        }
+
+        // Tìm sản phẩm trong giỏ hàng
+        const cartItem = await CartItem.findOne({ _id: item_id }).populate("variant_id", "stock");
+        if (!cartItem) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+        console.log(cartItem);
+
+        // Kiểm tra tồn kho
+        if (quantity > cartItem.variant_id.stock) {
+            return res.status(400).json({ message: "Not enough quantity" });
+        }
+
+        // Nếu quantity = 0, xóa sản phẩm khỏi giỏ hàng
+        if (quantity === 0) {
+            await CartItem.findByIdAndDelete(item_id);
+            return res.status(200).json({ message: "Remove items from cart successfully" });
+        }
+
+        // Cập nhật số lượng sản phẩm trong giỏ hàng
+        cartItem.quantity = quantity;
+        await cartItem.save();
+
+        res.status(200).json({
+            message: "Update Cart Successfully",
+            updatedItem: {
+                item_id: cartItem._id,
+                quantity: cartItem.quantity
+            }
+        });
+    } catch (err) {
+        console.error("Error in updateCartItem:", err);
+        res.status(500).json({
+            message: "Server error",
+            error: err.message
+        });
+    }
+};
+
 const quantityItemsCart = async (req, res) => {
     try {
         const user_id = req.user.id;
@@ -199,4 +255,4 @@ const quantityItemsCart = async (req, res) => {
     }
 };
 
-module.exports = { addToCart, quantityItemsCart, getListItemsCart, removeItemFromCart };
+module.exports = { addToCart, quantityItemsCart, getListItemsCart, removeItemFromCart, updateCartItem };

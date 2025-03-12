@@ -15,4 +15,7 @@ router.post("/add", authMiddleware, cartController.addToCart);
 // xóa sản phẩm trong giỏ hàng
 router.delete("/:item_id", authMiddleware, cartController.removeItemFromCart);
 
+// chỉnh sửa số lượng sản phẩm trong giỏ hàng
+router.put("/update", authMiddleware, cartController.updateCartItem);
+
 module.exports = router;
