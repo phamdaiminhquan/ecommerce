@@ -59,7 +59,10 @@ const getListItemsCart = async (req, res) => {
                 productId: product ? product._id : null,
                 item_id: cartItem._id,
                 name: product ? product.name : null,
-                thumbnail: product ? product.images : null,
+                thumbnail: 
+                    product && 
+                    product.images && 
+                    product.images.length > 0 ? product.images[0] : null,
                 originalPrice: cartItem.variant_id.price,
                 sellingPrice: cartItem.variant_id.salePrice,
                 quantity: cartItem.quantity,
