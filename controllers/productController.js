@@ -426,37 +426,37 @@ const getProductDetails = async (req, res) => {
         // Input
         const { productID } = req.params;
 
-
         // Nếu user đã đăng nhập, lấy wishlist của họ
         let favorite = false;
         if (req.user) {
             const user_id = req.user.id;
             favorite = await Wishlist.findOne({ user_id: user_id, product_id: productID }).select("isActive").lean();
-            console.log(favorite);
         }
 
+        // Lấy thông tin sản phẩm
         const product = await Product.findById(productID)
             .populate("shop_id")
             .select("_id name category_id brand_name description images variantDefault")
             .lean();
+
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
-        const productData = {
-            ...product,
-            wishlist: favorite ? favorite.isActive : null
-        }
 
+        // Lấy tất cả variants của sản phẩm
         const variants = await Variant.find({ product_id: productID })
             .select("_id sku name price salePrice stock images")
             .lean();
 
+        // Lấy tất cả các ID của variants
         const variantIDs = variants.map(variant => variant._id);
 
+        // Lấy thuộc tính của các variants
         const attributes = await Attribute.find({ variant_id: { $in: variantIDs } })
             .select("variant_id type value")
             .lean();
 
+        // Cập nhật thông tin variantData
         const variantData = variants.map(variant => ({
             _id: variant._id,
             sku: variant.sku,
@@ -470,12 +470,24 @@ const getProductDetails = async (req, res) => {
                 .map(({ type, value }) => ({ type, value }))
         }));
 
+        // **Cập nhật danh sách hình ảnh trong productData**
+        const allVariantImages = variants.flatMap(variant => variant.images); // Lấy tất cả ảnh từ variants
+        const uniqueImages = [...new Set([...product.images, ...allVariantImages])]; // Loại bỏ ảnh trùng lặp
+
+        // **Gán vào productData**
+        const productData = {
+            ...product,
+            images: uniqueImages, // Gán danh sách ảnh mới
+            wishlist: favorite ? favorite.isActive : null
+        };
+
         res.status(200).json({ productData, variants: variantData });
     } catch (err) {
         console.error("Error occurred:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
 
 module.exports = {
     searchProducts,

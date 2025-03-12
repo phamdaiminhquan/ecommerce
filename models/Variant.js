@@ -7,7 +7,7 @@ const VariantSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   salePrice: { type: Number, default: null }, // Giá khuyến mãi (nếu có)
   stock: { type: Number, required: true },
-  images: { type: [String] }, // Hình ảnh riêng của biến thể (nếu có)
+  images: { type: String }, // Hình ảnh riêng của biến thể (nếu có)
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 

@@ -69,7 +69,7 @@ const getListItemsCart = async (req, res) => {
                 shopName: product ? product.shop_id.name : null,
                 shopId: product ? product.shop_id._id : null,
                 stock: cartItem.variant_id.stock,
-                attributes: itemAttributes.map(attr => ({ name: attr.name, value: attr.value })) // Fetch attributes dynamically
+                attributes: itemAttributes.map(attr => ({ name: attr.name, value: attr.value }))
             };
         });
 

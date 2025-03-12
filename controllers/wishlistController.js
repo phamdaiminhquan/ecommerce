@@ -1,19 +1,19 @@
 const Wishlist = require("../models/Wishlist");
 const Product = require("../models/Product");
 
-const favorite = async (req,res) => {
-    try{
-        
+const favorite = async (req, res) => {
+    try {
+
         const { product_id, status } = req.body;
         const user_id = req.user.id;
 
-        if(!product_id || status === undefined) {   
+        if (!product_id || status === undefined) {
             return res.status(400).json({ message: "Product ID and Status is required" });
         }
 
-        let favorite = await Wishlist.findOne({user_id: user_id, product_id: product_id});
+        let favorite = await Wishlist.findOne({ user_id: user_id, product_id: product_id });
 
-        if (!favorite){
+        if (!favorite) {
             favorite = new Wishlist({ user_id, product_id, isActive: status });
         } else {
             favorite.isActive = status;
@@ -41,11 +41,16 @@ const getWishlist = async (req, res) => {
         const wishlistItems = await Wishlist.find({ user_id, isActive: true })
             .populate({
                 path: "product_id",
-                select: "_id name images" // Chỉ lấy các field cần thiết của sản phẩm
+                select: "_id name images variantDefault",
+                populate: {
+                    path: "variantDefault",
+                    select: "price salePrice" 
+                }
             })
             .skip(skip)
             .limit(limitParsed)
             .lean();
+
 
         if (wishlistItems.length === 0) {
             return res.status(200).json([]);
@@ -56,6 +61,8 @@ const getWishlist = async (req, res) => {
             product_id: item.product_id._id,
             name: item.product_id.name,
             thumbnail: item.product_id?.images?.[0] || null,
+            price: item.product_id.variantDefault.price,
+            salePrice: item?.product_id?.variantDefault?.salePrice || null,
             status: item.isActive
         }));
 
