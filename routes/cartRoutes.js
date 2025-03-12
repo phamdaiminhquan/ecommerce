@@ -12,4 +12,7 @@ router.get("/quantity" , authMiddleware, cartController.quantityItemsCart);
 // Thêm sản phẩm vào giỏ hàng
 router.post("/add", authMiddleware, cartController.addToCart);
 
+// xóa sản phẩm trong giỏ hàng
+router.delete("/:item_id", authMiddleware, cartController.removeItemFromCart);
+
 module.exports = router;

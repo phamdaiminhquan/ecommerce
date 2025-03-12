@@ -14,7 +14,7 @@ const getListItemsCart = async (req, res) => {
         let limitParsed = parseInt(limit);
         let pageParsed = parseInt(page);
         if (isNaN(limitParsed) || limitParsed <= 0) {
-            limitParsed = 10;
+            limitParsed = 20;
         }
         if (isNaN(pageParsed) || pageParsed <= 0) {
             pageParsed = 1;
@@ -55,11 +55,9 @@ const getListItemsCart = async (req, res) => {
         const responseItems = cartItemList.map(cartItem => {
             const product = products.find(p => p._id.toString() === cartItem.variant_id.product_id.toString());
             const itemAttributes = attributes.filter(attr => attr.variant_id.toString() === cartItem.variant_id._id.toString());
-            // console.log("variantID",cartItem.variant_id._id);
-            // console.log("productname", product);
             return {
                 productId: product ? product._id : null,
-                items_id: cartItem._id,
+                item_id: cartItem._id,
                 name: product ? product.name : null,
                 thumbnail: product ? product.images : null,
                 originalPrice: cartItem.variant_id.price,
@@ -125,6 +123,41 @@ const addToCart = async (req, res) => {
     }
 };
 
+const removeItemFromCart = async (req, res) => {
+    try {
+        // Input
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized: User ID is missing" });
+        }
+        const user_id = req.user.id;
+
+        const { item_id } = req.params;
+        if (!item_id) {
+            return res.status(400).json({ message: "Bad Request: Must have item_id" });
+        }
+
+        // Kiểm tra giỏ hàng của người dùng
+        const cart = await Cart.findOne({ user_id });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+
+        // Tìm và xóa sản phẩm trong giỏ hàng
+        const cartItem = await CartItem.findOneAndDelete({ _id: item_id });
+        if (!cartItem) {
+            return res.status(404).json({ message: "Item not found in cart" });
+        }
+
+        res.status(200).json({ message: "Item removed from cart successfully" });
+    } catch (err) {
+        console.error("Error in removeItemFromCart:", err);
+        res.status(500).json({
+            message: "Server error",
+            error: err.message
+        });
+    }
+};
+
 const quantityItemsCart = async (req, res) => {
     try {
         const user_id = req.user.id;
@@ -166,4 +199,4 @@ const quantityItemsCart = async (req, res) => {
     }
 };
 
-module.exports = { addToCart, quantityItemsCart, getListItemsCart };
+module.exports = { addToCart, quantityItemsCart, getListItemsCart, removeItemFromCart };
