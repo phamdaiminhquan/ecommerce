@@ -20,13 +20,13 @@ const checkAuth = async (req, res, next) => {
         const token = req.header("Authorization")?.split(" ")[1];
 
         if (!token) {
-            req.user = null; // Người dùng chưa đăng nhập
-            return next(); // Tiếp tục xử lý API bình thường
+            req.user = null;
+            return next();
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
-        next(); // Cho phép tiếp tục API
+        next();
     } catch (err) {
         req.user = null;
         next();

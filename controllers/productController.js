@@ -1,6 +1,6 @@
+const SearchKeyword = require("../models/SearchKeyword");
 const Product = require("../models/Product");
 const Variant = require("../models/Variant");
-const SearchKeyword = require("../models/SearchKeyword");
 const Wishlist = require("../models/Wishlist");
 const Attribute = require("../models/Attribute");
 

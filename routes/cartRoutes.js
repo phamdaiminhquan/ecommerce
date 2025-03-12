@@ -3,6 +3,9 @@ const { authMiddleware, checkAuth } = require("../middleware/auth");
 const router = express.Router();
 const cartController = require("../controllers/cartController")
 
+// lấy danh sách sản phẩm trong giỏ hàng
+router.get("/", authMiddleware, cartController.getListItemsCart);
+
 // lấy số lượng sản phẩm trong giỏ hàng
 router.get("/quantity" , authMiddleware, cartController.quantityItemsCart);
 
