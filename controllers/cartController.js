@@ -93,11 +93,8 @@ const addToCart = async (req, res) => {
         const { variant_id, quantity } = req.body;
         const user_id = req.user.id;
 
-        // Get cart
-        let cart = await Cart.findOne({ user_id });
-        if (!cart) {
-            cart = new Cart({ user_id });
-            await cart.save();
+        if (!variant_id || !quantity || typeof quantity !== "number" || quantity <= 0) {
+            return res.status(400).json({ message: "Bad Request: Invalid variant_id or quantity" });
         }
 
         // Get variant
@@ -105,10 +102,25 @@ const addToCart = async (req, res) => {
         if (!variant) {
             return res.status(404).json({ message: "Product variant not found" });
         }
-        
-        // add item cart
+
+        // Check stock availability
+        if (quantity > variant.stock) {
+            return res.status(400).json({ message: "Not enough quantity in stock" });
+        }
+
+        // Get cart
+        let cart = await Cart.findOne({ user_id });
+        if (!cart) {
+            cart = new Cart({ user_id });
+            await cart.save();
+        }
+
+        // Add item to cart
         let cartItem = await CartItem.findOne({ cart_id: cart._id, variant_id });
         if (cartItem) {
+            if (cartItem.quantity + quantity > variant.stock) {
+                return res.status(400).json({ message: "Not enough quantity in stock" });
+            }
             cartItem.quantity += quantity;
         } else {
             cartItem = new CartItem({
@@ -259,3 +271,4 @@ const quantityItemsCart = async (req, res) => {
 };
 
 module.exports = { addToCart, quantityItemsCart, getListItemsCart, removeItemFromCart, updateCartItem };
+
