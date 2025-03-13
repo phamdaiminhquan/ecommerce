@@ -4,7 +4,6 @@ const Variant = require("../models/Variant");
 const Wishlist = require("../models/Wishlist");
 const Attribute = require("../models/Attribute");
 
-
 const searchProducts = async (req, res) => {
     try {
         // check Input
@@ -78,7 +77,7 @@ const searchProducts = async (req, res) => {
                 rating: product.rating,
                 quantity_sold: product.quantity_sold,
                 original_price: product.variantDefault?.price || null,
-                selling_price: product.variantDefault
+                selling_price: product.variantDefault.salePrice
                     ? product.variantDefault.salePrice || product.variantDefault.price
                     : null,
                 isActive: product.isActive,
@@ -141,7 +140,7 @@ const topSellingProducts = async (req, res) => {
                 rating: product.rating,
                 quantity_sold: product.quantity_sold,
                 original_price: product.variantDefault?.price || null,
-                selling_price: product.variantDefault
+                selling_price: product.variantDefault.salePrice
                     ? product.variantDefault.salePrice || product.variantDefault.price
                     : null,
                 isActive: product.isActive,
@@ -214,7 +213,7 @@ const filterProductsByTag = async (req, res) => {
                 rating: product.rating,
                 quantity_sold: product.quantity_sold,
                 original_price: product.variantDefault?.price || null,
-                selling_price: product.variantDefault
+                selling_price: product.variantDefault.salePrice
                     ? product.variantDefault.salePrice || product.variantDefault.price
                     : null,
                 isActive: product.isActive,
@@ -343,7 +342,7 @@ const popularProducts = async (req, res) => {
                 rating: product.rating,
                 quantity_sold: product.quantity_sold,
                 original_price: product.variantDefault?.price || null,
-                selling_price: product.variantDefault
+                selling_price: product.variantDefault.salePrice
                     ? product.variantDefault.salePrice || product.variantDefault.price
                     : null,
                 isActive: product.isActive,
@@ -405,7 +404,7 @@ const getProductsByCategoryOrderedByTime = async (req, res) => {
                 rating: product.rating,
                 quantity_sold: product.quantity_sold,
                 original_price: product.variantDefault?.price || null,
-                selling_price: product.variantDefault
+                selling_price: product.variantDefault.salePrice
                     ? product.variantDefault.salePrice || product.variantDefault.price
                     : null,
                 isActive: product.isActive,
@@ -462,7 +461,7 @@ const getProductDetails = async (req, res) => {
             sku: variant.sku,
             name: variant.name,
             price: variant.price,
-            salePrice: variant.salePrice,
+            salePrice: variant.salePrice ? variant.salePrice : variant.price,
             stock: variant.stock,
             images: variant.images,
             attributes: attributes
@@ -487,7 +486,6 @@ const getProductDetails = async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
-
 
 module.exports = {
     searchProducts,

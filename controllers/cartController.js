@@ -59,10 +59,7 @@ const getListItemsCart = async (req, res) => {
                 productId: product ? product._id : null,
                 item_id: cartItem._id,
                 name: product ? product.name : null,
-                thumbnail: 
-                    product && 
-                    product.images && 
-                    product.images.length > 0 ? product.images[0] : null,
+                thumbnail: cartItem.variant_id.images ? cartItem.variant_id.images : null,
                 originalPrice: cartItem.variant_id.price,
                 sellingPrice: cartItem.variant_id.salePrice,
                 quantity: cartItem.quantity,
@@ -91,23 +88,25 @@ const getListItemsCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
     try {
+        // Input
         const { variant_id, quantity } = req.body;
         const user_id = req.user.id;
 
+        // Get cart
         let cart = await Cart.findOne({ user_id });
-
         if (!cart) {
             cart = new Cart({ user_id });
             await cart.save();
         }
 
+        // Get variant
         const variant = await Variant.findById(variant_id);
         if (!variant) {
             return res.status(404).json({ message: "Product variant not found" });
         }
-
+        
+        // add item cart
         let cartItem = await CartItem.findOne({ cart_id: cart._id, variant_id });
-
         if (cartItem) {
             cartItem.quantity += quantity;
         } else {

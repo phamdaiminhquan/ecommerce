@@ -30,7 +30,6 @@ const favorite = async (req, res) => {
 const getWishlist = async (req, res) => {
     try {
         const user_id = req.user.id;
-
         // Pagination
         const { page, limit } = req.query;
         let limitParsed = parseInt(limit) || 10;
@@ -44,7 +43,7 @@ const getWishlist = async (req, res) => {
                 select: "_id name images variantDefault",
                 populate: {
                     path: "variantDefault",
-                    select: "price salePrice _id" 
+                    select: "price salePrice _id"
                 }
             })
             .skip(skip)
@@ -59,7 +58,7 @@ const getWishlist = async (req, res) => {
         // Format API response
         const wishlistData = wishlistItems.map(item => ({
             product_id: item.product_id._id,
-            variantDefault: item.product_id.variantDefault._id,
+            variantDefault: item.product_id.variantDefault?._id,
             name: item.product_id.name,
             thumbnail: item.product_id?.images?.[0] || null,
             price: item.product_id.variantDefault.price,
