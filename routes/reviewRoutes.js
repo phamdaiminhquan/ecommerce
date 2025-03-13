@@ -4,6 +4,6 @@ const router = express.Router();
 // Controllers
 const {getReviewsByProduct} = require("../controllers/reviewController");
 
-router.get("/", getReviewsByProduct);
+router.get("/:productId", getReviewsByProduct);
 
 module.exports = router;
