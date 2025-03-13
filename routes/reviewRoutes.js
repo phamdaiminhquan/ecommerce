@@ -1,9 +1,11 @@
-const express = require("express");
-const router = express.Router();
+// const express = require("express");
+// const router = express.Router();
 
-// Controllers
-const {getReviewsByProduct} = require("../controllers/reviewController");
+// // Controllers
+// const {getReviewsByProduct, addReview} = require("../controllers/reviewController");
 
-router.get("/:productId", getReviewsByProduct);
+// // Endpoint
+// // router.get("/:productId", getReviewsByProduct);
+// // router.get("/add/:productId", addReview);
 
-module.exports = router;
+// module.exports = router;

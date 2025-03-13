@@ -10,7 +10,7 @@ const authRoutes = require("./authRoutes");
 const cartRoutes = require("./cartRoutes");
 const wishlistRoutes = require("./wishlistRoutes")
 const shopRoutes = require("./shopRoutes");
-const reviewRoutes = require("./reviewRoutes");
+// const reviewRoutes = require("./reviewRoutes");
 
 // Import models
 const Article = require("../models/Article");
@@ -24,7 +24,7 @@ router.use("/auth", authRoutes);
 router.use("/cart", cartRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/shops", shopRoutes);
-router.use("/reviews", reviewRoutes);
+// router.use("/reviews", reviewRoutes);
 
 // Lấy danh sách tất cả bài viết
 router.get("/article", async (req, res) => {

@@ -26,7 +26,7 @@ const getListItemsCart = async (req, res) => {
         if (!cart) {
             cart = new Cart({ user_id });
             await cart.save();
-            return res.status(200).json({ message: "List of items in cart is empty", cart });
+            return res.status(200).json({ message: "List of items in cart is empty", cart, items: []});
         }
 
         // get list items cart with pagination
@@ -37,7 +37,7 @@ const getListItemsCart = async (req, res) => {
             .populate("variant_id", "product_id price salePrice stock images");
 
         if (cartItemList.length === 0) {
-            return res.status(200).json({ message: "List of items in cart is empty", cart });
+            return res.status(200).json({ message: "List of items in cart is empty", cart, items: []});
         }
 
         // Get product details
