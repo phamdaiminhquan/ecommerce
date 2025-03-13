@@ -62,6 +62,9 @@ const getListItemsCart = async (req, res) => {
                 thumbnail: cartItem.variant_id.images? cartItem.variant_id.images : null,
                 originalPrice: cartItem.variant_id.price,
                 sellingPrice: cartItem.variant_id.salePrice,
+                selling_price: cartItem.variant_id.salePrice
+                    ? cartItem.variant_id.salePrice || cartItem.variant_id.price
+                    : null,
                 quantity: cartItem.quantity,
                 shopName: product ? product.shop_id.name : null,
                 shopId: product ? product.shop_id._id : null,
