@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
+// Import controller
 const { getActiveAds } = require("../controllers/adController");
 
-router.get("/active", getActiveAds); // Route API lấy quảng cáo đang hoạt động
+// Endpoint
+router.get("/active", getActiveAds);
 
 module.exports = router;

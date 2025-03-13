@@ -49,7 +49,7 @@ const getListItemsCart = async (req, res) => {
         // Get attributes from Attribute collection based on variant_id
         const variantIDs = cartItemList.map(item => item.variant_id._id);
         const attributes = await Attribute.find({ variant_id: { $in: variantIDs } })
-            .select("variant_id name value");
+            .select("variant_id name value images");
 
         // Map cart items with product details and attributes
         const responseItems = cartItemList.map(cartItem => {
@@ -59,7 +59,7 @@ const getListItemsCart = async (req, res) => {
                 productId: product ? product._id : null,
                 item_id: cartItem._id,
                 name: product ? product.name : null,
-                thumbnail: cartItem.variant_id.images ? cartItem.variant_id.images : null,
+                thumbnail: cartItem.variant_id.images? cartItem.variant_id.images : null,
                 originalPrice: cartItem.variant_id.price,
                 sellingPrice: cartItem.variant_id.salePrice,
                 quantity: cartItem.quantity,

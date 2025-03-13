@@ -12,8 +12,6 @@ const wishlistRoutes = require("./wishlistRoutes")
 const shopRoutes = require("./shopRoutes");
 const Article = require("../models/Article");
 
-const {authMiddleware} = require("../middleware/auth");
-
 // Định nghĩa prefix cho từng route
 router.use("/categories", categoryRoutes);
 router.use("/ads", adRoutes);
@@ -23,12 +21,6 @@ router.use("/auth", authRoutes);
 router.use("/cart", cartRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/shops", shopRoutes);
-
-
-// api check token
-router.get("/profile", authMiddleware, (req, res) => {
-    res.json({ message: "Token is valid", userId: req.user.id });
-});
 
 // Lấy danh sách tất cả bài viết
 router.get("/article", async (req, res) => {

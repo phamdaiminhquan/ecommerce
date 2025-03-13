@@ -1,13 +1,13 @@
 const Ad = require("../models/Ads");
 
-// API lấy danh sách quảng cáo đang hoạt động
+// GET api/ads
 const getActiveAds = async (req, res) => {
   try {
-    const currentTime = new Date(); // Lấy thời gian hiện tại 
+    const currentTime = new Date();
     const activeAds = await Ad.find({
       startTime: { $lte: currentTime },  // startTime <= currentTime
       endTime: { $gte: currentTime }     // endTime >= currentTime
-    }).sort({ startTime: 1 });  // Sắp xếp theo thời gian bắt đầu tăng dần
+    }).sort({ startTime: 1 });
 
     res.json(activeAds);
   } catch (err) {
