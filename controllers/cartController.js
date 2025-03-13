@@ -34,7 +34,7 @@ const getListItemsCart = async (req, res) => {
             .skip(skip)
             .limit(limitParsed)
             .select("variant_id quantity")
-            .populate("variant_id", "product_id price salePrice stock");
+            .populate("variant_id", "product_id price salePrice stock images");
 
         if (cartItemList.length === 0) {
             return res.status(200).json({ message: "List of items in cart is empty", cart });
@@ -49,7 +49,7 @@ const getListItemsCart = async (req, res) => {
         // Get attributes from Attribute collection based on variant_id
         const variantIDs = cartItemList.map(item => item.variant_id._id);
         const attributes = await Attribute.find({ variant_id: { $in: variantIDs } })
-            .select("variant_id name value images");
+            .select("variant_id name value");
 
         // Map cart items with product details and attributes
         const responseItems = cartItemList.map(cartItem => {
